@@ -21,5 +21,7 @@ public interface BlogService {
 
     Page<Blog> listBlogByTitleVote(User user, String title, Pageable pageable);
 
-    
+    Page<Blog> listBlogByTitleVoteAndSort(User user, String title, Pageable pageable);
+
+    void readingIncrease(Long id);
 }

@@ -1,5 +1,6 @@
 package com.zyj.blog.controller;
 
+import com.fasterxml.jackson.annotation.JsonCreator.Mode;
 import com.zyj.blog.domain.User;
 import com.zyj.blog.service.UserService;
 import com.zyj.blog.vo.Response;
@@ -20,7 +21,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
 @Controller
 @RequestMapping("/u")
 public class UserspaceController {
@@ -36,21 +36,22 @@ public class UserspaceController {
 
     /**
      * 获取个人设置页面
+     * 
      * @param username
      * @param model
      * @return
      */
     @GetMapping("/{username}/profile")
     @PreAuthorize("authentication.name.equals(#username)")
-    public ModelAndView profile(@PathVariable String username, Model model){
+    public ModelAndView profile(@PathVariable String username, Model model) {
         User user = (User) userDetailsService.loadUserByUsername(username);
         model.addAttribute("user", user);
         model.addAttribute("fileServerUrl", fileServerUrl);
         return new ModelAndView("/userspace/profile", "userModel", model);
     }
 
-    @PostMapping(value="/{username}/profile")
-    @PreAuthorize("authentication.name.equals(#username)") // 
+    @PostMapping(value = "/{username}/profile")
+    @PreAuthorize("authentication.name.equals(#username)") //
     public String saveProfile(@PathVariable("username") String username, User user) {
         User originalUser = userService.getUserById(user.getId()).get();
         originalUser.setEmail(user.getEmail());
@@ -69,7 +70,7 @@ public class UserspaceController {
 
     @GetMapping("/{username}/avatar")
     @PreAuthorize("authentication.name.equals(#username)")
-    public ModelAndView avatar(@PathVariable String username, Model model){
+    public ModelAndView avatar(@PathVariable String username, Model model) {
         User user = (User) userDetailsService.loadUserByUsername(username);
         model.addAttribute("user", user);
         return new ModelAndView("/usersapce/avatar", "userModel", model);
@@ -77,7 +78,7 @@ public class UserspaceController {
 
     @PostMapping("/{username}/avatar")
     @PreAuthorize("authentication.name.equals(#username)")
-    public ResponseEntity<Response> saveAvatar(@PathVariable("username") String username, @RequestBody User user){
+    public ResponseEntity<Response> saveAvatar(@PathVariable("username") String username, @RequestBody User user) {
         String avatarUrl = user.getAvatar();
 
         User originalUser = userService.getUserById(user.getId()).get();
@@ -85,5 +86,20 @@ public class UserspaceController {
         userService.saveOrUpdateUser(user);
         return ResponseEntity.ok().body(new Response(true, "处理成功", avatarUrl));
     }
+
+    /**
+     * 获取用户的主页
+     * @param username
+     * @param model
+     * @return
+     */
+    @GetMapping("/username")
+    public String userSpace(@PathVariable("username") String username, Model model) {
+        User user = (User) userDetailsService.loadUserByUsername(username);
+        model.addAttribute("user", user);
+        return "redirect:/u/" + username + "/blogs";
+    }
+
     
+
 }
